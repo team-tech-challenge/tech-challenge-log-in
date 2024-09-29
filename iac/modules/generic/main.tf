@@ -49,7 +49,7 @@ module "aws_lambda_function" {
   memory_size   = var.lambda_memory_size
   timeout       = var.lambda_timeout
   description   = var.lambda_description
-  architectures = ["arm64"]
+  architectures = ["x86_64"]
   image_uri     = var.lambda_image_uri
   tags = merge({
     "Name" = var.lambda_function_name
