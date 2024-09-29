@@ -18,7 +18,12 @@ def calculate_secret_hash(client_id, client_secret, username):
     return base64.b64encode(dig).decode()
 
 def lambda_handler(event, context):
-    body = event['body']
+
+    if isinstance(event['body'], str):
+        body = json.loads(event['body'])
+    else:
+        body = event['body']
+
     username = body['username']
     password = body['password']
 
@@ -36,9 +41,7 @@ def lambda_handler(event, context):
             'SECRET_HASH': secret_hash
         }
     }
-
     try:
-        # autenticação
         auth_result = cognito.initiate_auth(**params)
         return {
             'statusCode': 200,
