@@ -1,0 +1,66 @@
+name: 'Deploy to Terraform'
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+  actions: write
+
+jobs:
+  create-ecr:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-elastic-container-registry.yml@feat/adds-news-workflows
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      WORKING_DIRECTORY: ${{ secrets.WORKING_DIRECTORY }}
+      TF_BACKEND_KEY: ${{ secrets.TF_BACKEND_KEY }}
+      TF_BACKEND_REGION: ${{ secrets.TF_BACKEND_REGION }}
+      TF_BACKEND_BUCKET: ${{ secrets.TF_BACKEND_BUCKET }}
+
+  build-push:
+    needs: create-ecr
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/build-image-and-push.yml@feat/adds-news-workflows
+    secrets:
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
+  trivy-scan:
+    needs: build-push
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/trivy-scan.yml@feat/adds-news-workflows
+    secrets:
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+
+  deploy:
+    needs: trivy-scan
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-lambda-aws.yml@feat/adds-news-workflows
+    with:
+      environment: 'production'
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      WORKING_DIRECTORY: ${{ secrets.WORKING_DIRECTORY }}
+      TF_BACKEND_KEY: ${{ secrets.TF_BACKEND_KEY }}
+      TF_BACKEND_REGION: ${{ secrets.TF_BACKEND_REGION }}
+      TF_BACKEND_BUCKET: ${{ secrets.TF_BACKEND_BUCKET }}
