@@ -42,7 +42,7 @@ module "aws_ecr_repository_policy" {
 ################################################
 
 module "aws_lambda_function" {
-  source = "git::https://github.com/team-tech-challenge/terraform-modules-remotes.git//aws_lambda_function?ref=feat/create-module-cognito"
+  source = "git::https://github.com/team-tech-challenge/terraform-modules-remotes.git//aws_lambda_function?ref=main"
 
   function_name = var.lambda_function_name
   role          = "arn:aws:iam::575403774961:role/LabRole"
