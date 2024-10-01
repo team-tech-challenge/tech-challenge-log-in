@@ -15,7 +15,7 @@ permissions:
 jobs:
   create-ecr:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-elastic-container-registry.yml@feat/adds-news-workflows
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-elastic-container-registry.yml@main
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -30,7 +30,7 @@ jobs:
   build-push:
     needs: create-ecr
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/build-image-and-push.yml@feat/adds-news-workflows
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/build-image-and-push.yml@main
     secrets:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -41,7 +41,7 @@ jobs:
   trivy-scan:
     needs: build-push
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/trivy-scan.yml@feat/adds-news-workflows
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/trivy-scan.yml@main
     secrets:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -51,7 +51,7 @@ jobs:
   deploy:
     needs: trivy-scan
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-lambda-aws.yml@feat/adds-news-workflows
+    uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-lambda-aws.yml@main
     with:
       environment: 'production'
     secrets:

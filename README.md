@@ -1,4 +1,4 @@
-# terraform-modules-remotes
+# tech-challenge-log-in
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
@@ -67,3 +67,45 @@ The repository is structured as follows:
   * [x] [aws_api_gateway_deployment](https://github.com/team-tech-challenge/terraform-modules-remotes/tree/main/aws_api_gateway_deployment)
   * [x] [aws_api_gateway_stage](https://github.com/team-tech-challenge/terraform-modules-remotes/tree/main/aws_api_gateway_stage)
 
+
+## **Lambda Function**
+The lambda_function.py is a key component of this repository, which contains Terraform modules for AWS resources. This function enables the login in an Amazon Cognito User Pool by collecting username, password and email, after this it return a token to use the other endpoint of the service.
+
+---
+**Key Features:**
+
+Receives User Credentials: The function accepts an event containing the username and password.
+Authenticates User: It uses the provided credentials to authenticate the user in Cognito and return token.
+Handles Errors: Provides appropriate error messages if the authentication fails.
+
+---
+**How It Works:**
+
+Necessary Imports: Utilizes libraries such as boto3 for interacting with Cognito and hmac for generating an authentication hash.
+
+Calculates Secret Hash: Generates a secret hash using HMAC and SHA-256, which is required for the authentication request.
+
+Event Handling: Processes the incoming event to extract user credentials.
+
+User Authentication in Cognito: Attempts to authenticate the user and returns the authentication result or an error response. if it's okay on the request, so the response will return a token to use the other endpoints.
+
+
+**Example Usage:**
+The event should follow this structure:
+
+
+```bash
+curl --location 'https://techchallenge.com.br/auth/token' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username": "111.111.111.11",
+    "password": "Chm@20!!,"
+}'
+```
+
+---
+**Common Errors:**
+
+Invalid Username or Password: Returns an error if the username or password is incorrect.
+
+User Not Found: If the user does not exist in the Cognito User Pool, an appropriate error message is returned.
