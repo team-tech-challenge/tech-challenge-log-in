@@ -1,9 +1,14 @@
-name: 'Deploy to Terraform'
+name: 'Deploy Resources in Production'
+
+#on:
+#  pull_request:
+#    types:
+#      - closed
+#    branches:
+#      - main
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - main
 
@@ -14,7 +19,7 @@ permissions:
 
 jobs:
   create-ecr:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+#    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-elastic-container-registry.yml@main
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -29,7 +34,7 @@ jobs:
 
   build-push:
     needs: create-ecr
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+#    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/build-image-and-push.yml@main
     secrets:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -40,7 +45,7 @@ jobs:
 
   trivy-scan:
     needs: build-push
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+#    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/trivy-scan.yml@main
     secrets:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -50,7 +55,7 @@ jobs:
 
   deploy:
     needs: trivy-scan
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+#    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     uses: team-tech-challenge/terraform-reusable-actions/.github/workflows/create-lambda-aws.yml@main
     with:
       environment: 'production'

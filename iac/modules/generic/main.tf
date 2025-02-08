@@ -45,7 +45,7 @@ module "aws_lambda_function" {
   source = "git::https://github.com/team-tech-challenge/terraform-modules-remotes.git//aws_lambda_function?ref=main"
 
   function_name = var.lambda_function_name
-  role          = "arn:aws:iam::575403774961:role/LabRole"
+  role          = "arn:aws:iam::630607855992:role/LabRole"
   memory_size   = var.lambda_memory_size
   timeout       = var.lambda_timeout
   description   = var.lambda_description
